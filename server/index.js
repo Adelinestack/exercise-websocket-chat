@@ -9,21 +9,26 @@ const io = socketIo(server);
 const sockets = [];
 const lastMessages = [];
 
-broadcast = message => {
-  sockets.forEach(socket => socket.emit('message', message));
-};
+const rooms = ['bleue', 'vert', 'rouge', 'jaune'];
 
 io.on('connection', socket => {
   sockets.push(socket);
-  socket.emit('message', lastMessages);
-  socket.on('newMessage', message => {
-    if (lastMessages.length < 5) {
-      lastMessages.push(message);
-    } else {
-      lastMessages.shift();
-      lastMessages.push(message);
-    }
-    broadcast(message);
+  socket.emit('roomsList', rooms);
+  socket.on('roomChosen', roomChosen => {
+    socket.join(roomChosen);
+    io.sockets
+      .in(roomChosen)
+      .emit('welcomeMessage', `Bienvenue dans la room ${roomChosen}`);
+    io.sockets.in(roomChosen).emit('message', lastMessages);
+    socket.on('newMessage', message => {
+      if (lastMessages.length < 5) {
+        lastMessages.push(message);
+      } else {
+        lastMessages.shift();
+        lastMessages.push(message);
+      }
+      io.sockets.in(roomChosen).emit('message', [message]);
+    });
   });
 });
 
