@@ -1,13 +1,28 @@
-import React from 'react';
+import React, { Component } from 'react';
 
-const Begin = ({ userName, changeInputUserName, onClickChat }) => {
-  return (
-    <div>
-      <p>Choose username</p>
-      <input type="text" value={userName} onChange={changeInputUserName} />
-      <button onClick={onClickChat}>Chat !</button>
-    </div>
-  );
-};
+class Begin extends Component {
+  render() {
+    const {
+      roomsList,
+      userName,
+      changeInputUserName,
+      onClickChat,
+    } = this.props;
+
+    const rooms = roomsList.map(room => (
+      <button key={room} onClick={onClickChat.bind(null, room)}>
+        Room {room}
+      </button>
+    ));
+
+    return (
+      <div>
+        <p>Choose username</p>
+        <input type="text" value={userName} onChange={changeInputUserName} />
+        {rooms}
+      </div>
+    );
+  }
+}
 
 export default Begin;

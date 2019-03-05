@@ -3,13 +3,14 @@ import React, { Component } from 'react';
 import { receiveMessage, sendMessage } from '../services/socket';
 
 const addNewMessage = newMessage => prevState => ({
-  messages: [...prevState.messages, newMessage],
+  messages: [...prevState.messages, ...newMessage],
 });
 
 export default class ChatRoom extends Component {
   state = {
     messages: [],
     newMessage: '',
+    room: '',
   };
   componentDidMount() {
     this.setState({
@@ -27,6 +28,7 @@ export default class ChatRoom extends Component {
   sendNewMessage = () => {
     sendMessage({
       userName: this.props.userName,
+      room: this.props.currentRoom,
       message: this.state.newMessage,
     });
     this.setState({
@@ -42,6 +44,7 @@ export default class ChatRoom extends Component {
 
   render() {
     const { messages, newMessage } = this.state;
+    console.log(this.state.messages);
     const showMessage = messages.map(({ userName, message }, index) => (
       <p key={index}>
         <b>{userName} : </b>
@@ -50,6 +53,10 @@ export default class ChatRoom extends Component {
     ));
     return (
       <div className="App">
+        <div>
+          <h1>Room {this.props.currentRoom}</h1>
+        </div>
+        <div>{this.props.welcomeMessage}</div>
         <div>{showMessage}</div>
         <div>
           <input

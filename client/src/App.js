@@ -3,15 +3,26 @@ import React, { Component } from 'react';
 import Begin from './components/Begin';
 import ChatRoom from './components/ChatRoom';
 
-import { receiveMessage } from './services/socket';
+import {
+  receiveMessage,
+  receiveRoomsList,
+  sendRoomChosen,
+  receiveWelcomeMessage,
+} from './services/socket';
 
 class App extends Component {
   state = {
     chatState: 'BEGIN',
     userName: '',
     prevMessages: [],
+    roomsList: [],
+    currentRoom: '',
   };
   componentDidMount() {
+    receiveRoomsList(roomsList => this.setState({ roomsList }));
+    receiveWelcomeMessage(welcomeMessage => {
+      this.setState({ welcomeMessage, chatState: 'CHAT' });
+    });
     receiveMessage(prevMessages => {
       this.setState({ prevMessages });
     });
@@ -22,33 +33,47 @@ class App extends Component {
       userName: value,
     });
 
-  onClickChat = () => {
+  onClickChat = roomChosen => {
     if (!this.state.userName.length) {
       this.setState({
         userName: Date.now(),
       });
     }
     this.setState({
-      chatState: 'CHAT',
+      currentRoom: roomChosen,
     });
+    sendRoomChosen(roomChosen);
   };
 
   render() {
-    const { userName, prevMessages } = this.state;
-    const chatState = {
+    const {
+      userName,
+      roomsList,
+      currentRoom,
+      prevMessages,
+      chatState,
+      welcomeMessage,
+    } = this.state;
+    const chatStateComponents = {
       BEGIN: (
         <Begin
           userName={userName}
+          roomsList={roomsList}
           changeInputUserName={this.changeInputUserName.bind(this)}
           onClickChat={this.onClickChat.bind(this)}
         />
       ),
       CHAT: (
-        <ChatRoom userName={this.state.userName} prevMessages={prevMessages} />
+        <ChatRoom
+          userName={userName}
+          currentRoom={currentRoom}
+          welcomeMessage={welcomeMessage}
+          prevMessages={prevMessages}
+        />
       ),
     };
 
-    return <div className="App">{chatState[this.state.chatState]}</div>;
+    return <div className="App">{chatStateComponents[chatState]}</div>;
   }
 }
 
