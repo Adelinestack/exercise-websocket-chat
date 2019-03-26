@@ -1,16 +1,10 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import Rooms from './Rooms';
 import { receiveMessage, sendMessage } from '../services/socket';
+import { addNewMessage } from '../utils/messages';
 import { RoomName, Messages, InputChat } from '../stylized/chatRoomStyle';
 
-const addNewMessage = newMessage => prevState => {
-  if (prevState.messages.length >= 10) {
-    return { messages: [...prevState.messages.slice(1, 10), ...newMessage] };
-  }
-  return { messages: [...prevState.messages, ...newMessage] };
-};
-
-export default class ChatRoom extends Component {
+export default class ChatRoom extends PureComponent {
   state = {
     messages: [],
     newMessage: '',
