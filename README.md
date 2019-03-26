@@ -1,6 +1,23 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+---
+
+## Project description
+
+---
+
+It's a chat rooms app.
+You have a choice of 4 rooms to chat, you can choose your username and change room.
+
+### `Technologies used`
+
+ReactJS, Styled-components, NodeJs, Websockets, Express
+
+---
+
 ## Available Scripts
+
+---
 
 In the project directory, you can run:
 
