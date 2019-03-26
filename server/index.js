@@ -2,20 +2,18 @@ const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
 
+const { addMessage } = require('./utils/messages');
+const { LAST_MESSAGES, ROOMS } = require('./utils/const');
+let sockets = {};
+
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
-let sockets = {};
-const lastMessages = { bleue: [], verte: [], rouge: [], jaune: [] };
-
-const rooms = ['bleue', 'verte', 'rouge', 'jaune'];
-
 io.on('connection', socket => {
   sockets = { ...sockets, [socket.id]: { socket, lastRoom: null } };
 
-  socket.emit('roomsList', rooms);
-
+  socket.emit('roomsList', ROOMS);
   socket.on('roomChosen', ({ roomChosen, userName }) => {
     const socketData = sockets[socket.id];
 
@@ -24,8 +22,7 @@ io.on('connection', socket => {
         userName: 'Server',
         message: `***** ${userName} left Room ${socketData.lastRoom} *****`,
       };
-      lastMessages[socketData.lastRoom].push(serverMessage);
-      lastMessages[socketData.lastRoom].slice(1, 5);
+      addMessage(LAST_MESSAGES, socketData.lastRoom, serverMessage);
       io.sockets.in(socketData.lastRoom).emit('message', [serverMessage]);
       socket.leave(socketData.lastRoom);
     }
@@ -33,22 +30,20 @@ io.on('connection', socket => {
     socket.join(roomChosen);
     io.sockets
       .in(roomChosen)
-      .emit('welcomeMessage', `Bienvenue dans la room ${roomChosen}`);
-    socket.emit('message', lastMessages[roomChosen]);
+      .emit('welcomeMessage', `Welcome in ${roomChosen} room`);
+    socket.emit('message', LAST_MESSAGES[roomChosen]);
     const serverMessage = {
       userName: 'Server',
       message: `***** ${userName} join Room ${roomChosen} *****`,
     };
-    lastMessages[roomChosen].push(serverMessage);
-    lastMessages[roomChosen].slice(1, 5);
+    addMessage(LAST_MESSAGES, roomChosen, serverMessage);
     io.sockets.in(roomChosen).emit('message', [serverMessage]);
     socket.emit('roomIsChanged', roomChosen);
   });
 
   socket.on('newMessage', message => {
     const socketData = sockets[socket.id];
-    lastMessages[socketData.lastRoom].push(message);
-    lastMessages[socketData.lastRoom].slice(1, 5);
+    addMessage(LAST_MESSAGES, socketData.lastRoom, message);
     io.sockets.in(socketData.lastRoom).emit('message', [message]);
   });
 });

@@ -1,11 +1,14 @@
 import React, { Component } from 'react';
 import Rooms from './Rooms';
 import { receiveMessage, sendMessage } from '../services/socket';
-import { RoomName } from '../stylized/chatRoomStyle';
+import { RoomName, Messages, InputChat } from '../stylized/chatRoomStyle';
 
-const addNewMessage = newMessage => prevState => ({
-  messages: [...prevState.messages, ...newMessage],
-});
+const addNewMessage = newMessage => prevState => {
+  if (prevState.messages.length >= 10) {
+    return { messages: [...prevState.messages.slice(1, 10), ...newMessage] };
+  }
+  return { messages: [...prevState.messages, ...newMessage] };
+};
 
 export default class ChatRoom extends Component {
   state = {
@@ -56,8 +59,8 @@ export default class ChatRoom extends Component {
           <RoomName>Room {currentRoom}</RoomName>
         </div>
         <div>{welcomeMessage}</div>
-        <div>{showMessage}</div>
-        <div>
+        <Messages>{showMessage}</Messages>
+        <InputChat>
           <input
             type="text"
             value={newMessage}
@@ -65,7 +68,7 @@ export default class ChatRoom extends Component {
             onKeyDown={this.onKeyDown}
           />
           <button onClick={this.sendNewMessage.bind(this)}>send</button>
-        </div>
+        </InputChat>
         <div>
           <Rooms
             currentRoom={currentRoom}

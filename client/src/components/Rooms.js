@@ -1,18 +1,18 @@
 import React, { Component } from 'react';
-
+import { RoomsContainer, Room } from '../stylized/roomsStyle';
 class Rooms extends Component {
   render() {
     const { currentRoom, roomsList, onRoomChange } = this.props;
     const roomsToShow = roomsList.map(room =>
       room !== currentRoom ? (
-        <li onClick={onRoomChange.bind(null, room)}>{room}</li>
+        <Room onClick={onRoomChange.bind(null, room)}>{room}</Room>
       ) : null
     );
     return (
-      <div>
-        <p>rooms</p>
-        <ul>{roomsToShow}</ul>
-      </div>
+      <RoomsContainer>
+        <p>Join another room</p>
+        <div>{roomsToShow}</div>
+      </RoomsContainer>
     );
   }
 }
