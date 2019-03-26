@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-
+import Rooms from './Rooms';
 import { receiveMessage, sendMessage } from '../services/socket';
+import { RoomName } from '../stylized/chatRoomStyle';
 
 const addNewMessage = newMessage => prevState => ({
   messages: [...prevState.messages, ...newMessage],
@@ -12,14 +13,13 @@ export default class ChatRoom extends Component {
     newMessage: '',
     room: '',
   };
+
   componentDidMount() {
-    this.setState({
-      messages: this.props.prevMessages,
-    });
     receiveMessage(message => {
       this.setState(addNewMessage(message));
     });
   }
+
   changeInputMessage = ({ target: { value } }) =>
     this.setState({
       newMessage: value,
@@ -28,7 +28,6 @@ export default class ChatRoom extends Component {
   sendNewMessage = () => {
     sendMessage({
       userName: this.props.userName,
-      room: this.props.currentRoom,
       message: this.state.newMessage,
     });
     this.setState({
@@ -44,7 +43,7 @@ export default class ChatRoom extends Component {
 
   render() {
     const { messages, newMessage } = this.state;
-    console.log(this.state.messages);
+    const { currentRoom, roomsList, welcomeMessage, onRoomChange } = this.props;
     const showMessage = messages.map(({ userName, message }, index) => (
       <p key={index}>
         <b>{userName} : </b>
@@ -52,11 +51,11 @@ export default class ChatRoom extends Component {
       </p>
     ));
     return (
-      <div className="App">
+      <div>
         <div>
-          <h1>Room {this.props.currentRoom}</h1>
+          <RoomName>Room {currentRoom}</RoomName>
         </div>
-        <div>{this.props.welcomeMessage}</div>
+        <div>{welcomeMessage}</div>
         <div>{showMessage}</div>
         <div>
           <input
@@ -66,6 +65,13 @@ export default class ChatRoom extends Component {
             onKeyDown={this.onKeyDown}
           />
           <button onClick={this.sendNewMessage.bind(this)}>send</button>
+        </div>
+        <div>
+          <Rooms
+            currentRoom={currentRoom}
+            roomsList={roomsList}
+            onRoomChange={onRoomChange}
+          />
         </div>
       </div>
     );

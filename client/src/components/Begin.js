@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { BeginContainer, Username, RoomButton } from '../stylized/beginStyle';
 
 class Begin extends Component {
   render() {
@@ -10,17 +11,17 @@ class Begin extends Component {
     } = this.props;
 
     const rooms = roomsList.map(room => (
-      <button key={room} onClick={onClickChat.bind(null, room)}>
+      <RoomButton key={room} onClick={onClickChat.bind(null, room)}>
         Room {room}
-      </button>
+      </RoomButton>
     ));
 
     return (
-      <div>
-        <p>Choose username</p>
-        <input type="text" value={userName} onChange={changeInputUserName} />
-        {rooms}
-      </div>
+      <BeginContainer>
+        <p>Choose your username</p>
+        <Username type="text" value={userName} onChange={changeInputUserName} />
+        <div>{rooms}</div>
+      </BeginContainer>
     );
   }
 }

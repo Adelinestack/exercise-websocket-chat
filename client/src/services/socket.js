@@ -12,8 +12,11 @@ export const sendMessage = message => {
 export const receiveRoomsList = callback =>
   socket.on('roomsList', roomsList => callback(roomsList));
 
-export const sendRoomChosen = roomChosen =>
-  socket.emit('roomChosen', roomChosen);
+export const sendRoomChosen = (roomChosen, userName) =>
+  socket.emit('roomChosen', { roomChosen, userName });
 
 export const receiveWelcomeMessage = callback =>
   socket.on('welcomeMessage', message => callback(message));
+
+export const receiveNewRoom = callback =>
+  socket.on('roomIsChanged', newRoomChosen => callback(newRoomChosen));

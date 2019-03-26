@@ -8,7 +8,10 @@ import {
   receiveRoomsList,
   sendRoomChosen,
   receiveWelcomeMessage,
+  receiveNewRoom,
 } from './services/socket';
+
+import { Container } from './stylized/appStyle';
 
 class App extends Component {
   state = {
@@ -17,6 +20,7 @@ class App extends Component {
     prevMessages: [],
     roomsList: [],
     currentRoom: '',
+    welcomeMessage: '',
   };
   componentDidMount() {
     receiveRoomsList(roomsList => this.setState({ roomsList }));
@@ -34,15 +38,22 @@ class App extends Component {
     });
 
   onClickChat = roomChosen => {
-    if (!this.state.userName.length) {
-      this.setState({
-        userName: Date.now(),
-      });
-    }
-    this.setState({
-      currentRoom: roomChosen,
+    this.setState(
+      prevState => {
+        return {
+          userName: prevState.userName || Date.now(),
+          currentRoom: roomChosen,
+        };
+      },
+      () => sendRoomChosen(roomChosen, this.state.userName)
+    );
+  };
+
+  onRoomChange = newRoomChosen => {
+    sendRoomChosen(newRoomChosen, this.state.userName);
+    receiveNewRoom(newRoomChosen => {
+      this.setState({ currentRoom: newRoomChosen });
     });
-    sendRoomChosen(roomChosen);
   };
 
   render() {
@@ -67,13 +78,22 @@ class App extends Component {
         <ChatRoom
           userName={userName}
           currentRoom={currentRoom}
+          roomsList={roomsList}
           welcomeMessage={welcomeMessage}
           prevMessages={prevMessages}
+          onRoomChange={this.onRoomChange.bind(this)}
         />
       ),
     };
 
-    return <div className="App">{chatStateComponents[chatState]}</div>;
+    return (
+      <div className="App">
+        <Container>
+          <h1>- Chat room -</h1>
+          {chatStateComponents[chatState]}
+        </Container>
+      </div>
+    );
   }
 }
 
