@@ -2,7 +2,6 @@ const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
 
-const { addMessage } = require('./utils/messages');
 const { LAST_MESSAGES, ROOMS } = require('./utils/const');
 let sockets = {};
 
@@ -22,7 +21,7 @@ io.on('connection', socket => {
         userName: 'Server',
         message: `***** ${userName} left Room ${socketData.lastRoom} *****`,
       };
-      addMessage(LAST_MESSAGES, socketData.lastRoom, serverMessage);
+      LAST_MESSAGES[socketData.lastRoom].push(serverMessage);
       io.sockets.in(socketData.lastRoom).emit('message', [serverMessage]);
       socket.leave(socketData.lastRoom);
     }
@@ -36,14 +35,14 @@ io.on('connection', socket => {
       userName: 'Server',
       message: `***** ${userName} join Room ${roomChosen} *****`,
     };
-    addMessage(LAST_MESSAGES, roomChosen, serverMessage);
+    LAST_MESSAGES[roomChosen].push(serverMessage);
     io.sockets.in(roomChosen).emit('message', [serverMessage]);
     socket.emit('roomIsChanged', roomChosen);
   });
 
   socket.on('newMessage', message => {
     const socketData = sockets[socket.id];
-    addMessage(LAST_MESSAGES, socketData.lastRoom, message);
+    LAST_MESSAGES[socketData.lastRoom].push(message);
     io.sockets.in(socketData.lastRoom).emit('message', [message]);
   });
 });
